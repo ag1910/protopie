@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Item Search</title>
+</head>
+<body>
+  <h1>Item Search</h1>
+
+  <input type="text" id="searchTerm" placeholder="Search term">
+  <button onclick="searchItems()">Search</button>
+
+  <h2>Search Results</h2>
+  <ul id="searchResults"></ul>
+
+  <h2>Add Item</h2>
+  <input type="text" id="itemName" placeholder="Name">
+  <input type="text" id="itemDescription" placeholder="Description">
+  <button onclick="addItem()">Add</button>
+
+  <h2>Delete Item</h2>
+  <input type="text" id="itemId" placeholder="Item ID">
+  <button onclick="deleteItem()">Delete</button>
+
+  <script>
+    function searchItems() {
+      const searchTerm = document.getElementById('searchTerm').value;
+      fetch(`/search?q=${searchTerm}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const searchResults = document.getElementById('searchResults');
+          searchResults.innerHTML = '';
+          data.forEach((item) => {
+            const li = document.createElement('li');
+            li.textContent = `${item.name} - ${item.description}`;
+            searchResults.appendChild(li);
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+
+    function addItem() {
+      const name = document.getElementById('itemName').value;
+      const description = document.getElementById('itemDescription').value;
+      fetch('/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, description }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(`Item added with ID: ${data.id}`);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+
+    function deleteItem() {
+      const id = document.getElementById('itemId').value;
+      fetch(`/delete/${id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Item deleted successfully.');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  </script>
+</body>
+</html>
